@@ -537,8 +537,11 @@ function importData(setCars, showToast) {
 };
   input.click();
 }
-const APP_USER = "admin";
-const APP_PASS = "123456";
+const USERS = [
+  { username: "admin", password: "123456" },
+  { username: "mohamed", password: "7890" },
+  { username: "manager", password: "5555" }
+];
 // ── MAIN ──
 export default function App() {
   const [cars, setCars] = useState([]);
@@ -551,13 +554,18 @@ const [loggedIn, setLoggedIn] = useState(false);
 const [username, setUsername] = useState("");
 const [password, setPassword] = useState("");
 const login = () => {
-  if (username === APP_USER && password === APP_PASS) {
+  const found = USERS.find(
+    (u) =>
+      u.username === username &&
+      u.password === password
+  );
+
+  if (found) {
     setLoggedIn(true);
   } else {
     alert("بيانات الدخول غلط");
   }
 };
-
 useEffect(() => {
   const loadCars = async () => {
     try {
