@@ -26,7 +26,12 @@ const LS = {
 };
 
 const fmt = (n: any) => Number(n || 0).toLocaleString("ar-EG");
-const daysBetween = (d: any) => { if (!d) return null; return Math.ceil((new Date(d) - new Date()) / 86400000); };
+const daysBetween = (d: any) => {
+  if (!d) return null;
+  return Math.ceil(
+    (new Date(d).getTime() - new Date().getTime()) / 86400000
+  );
+};
 const todayStr = () => new Date().toISOString().split("T")[0];
 
 function kmStatus(lastKm: any, interval: any, cur: any) {
@@ -111,11 +116,23 @@ const Field = ({label,children,span=1}) =>
   </div>;
 const Panel = ({children,style={}}) =>
   <div style={{background:"rgba(255,255,255,0.04)",border:"1px solid rgba(255,255,255,0.09)",borderRadius:18,padding:20,...style}}>{children}</div>;
-const SHead = ({icon,title,sub}) =>
+const SHead = ({ icon, title, sub = "" }) => (
   <div style={{display:"flex",alignItems:"center",gap:10,marginBottom:18,paddingBottom:12,borderBottom:"1px solid rgba(255,255,255,0.07)"}}>
     <span style={{fontSize:22}}>{icon}</span>
-    <div><div style={{color:"white",fontWeight:900,fontSize:16}}>{title}</div>{sub&&<div style={{color:"rgba(255,255,255,0.35)",fontSize:12}}>{sub}</div>}</div>
-  </div>;
+
+    <div>
+      <div style={{color:"white",fontWeight:900,fontSize:16}}>
+        {title}
+      </div>
+
+      {sub && (
+        <div style={{color:"rgba(255,255,255,0.35)",fontSize:12}}>
+          {sub}
+        </div>
+      )}
+    </div>
+  </div>
+);
 
 // ── AI Assistant ──
 function AIAssistant({ car }) {
@@ -124,7 +141,7 @@ function AIAssistant({ car }) {
   const [loading, setLoading] = useState(false);
   const endRef = useRef(null);
   useEffect(() => { endRef.current?.scrollIntoView({behavior:"smooth"}); }, [messages]);
-  const send = async (msg) => {
+  const send = async (msg = input) => {
     const userMsg = (msg || input).trim();
     if (!userMsg || loading) return;
     setInput("");
@@ -182,14 +199,17 @@ function Analytics({ cars }) {
   const sorted = [...cars].sort((a,b)=>totalCost(b)-totalCost(a));
   const grandTotal = cars.reduce((s,c)=>s+totalCost(c),0);
   const monthlyFuel = useMemo(()=>{ const m={}; for(const c of cars) for(const l of(c.fuelLogs||[])) { if(!l.date)continue; const k=l.date.slice(0,7); m[k]=(m[k]||0)+ +(l.cost||0); } return Object.entries(m).sort().slice(-6); },[cars]);
-  const maxMV = Math.max(...monthlyFuel.map(m=>m[1]),1);
+  const maxMV = Math.max(
+  ...monthlyFuel.map((m: any) => Number(m[1] || 0)),
+  1
+);
   return (
     <div style={{display:"flex",flexDirection:"column",gap:20}}>
       <div style={{display:"grid",gridTemplateColumns:"repeat(3,1fr)",gap:14}}>
         {[
           {icon:"💰",label:"إجمالي مصاريف الأسطول",value:`${fmt(grandTotal)} جنيه`,color:"#f97316"},
           {icon:"🚗",label:"عدد السيارات",value:cars.length,color:"#3b82f6"},
-          {icon:"📏",label:"أعلى تكلفة/كم",value:(()=>{const r=[...cars].sort((a,b)=>costPerKm(b)-costPerKm(a))[0];return r?`${r.name||r.brand}: ${costPerKm(r)} ج/كم`:"—"})(),color:"#10b981"},
+          {icon:"📏",label:"أعلى تكلفة/كم",value:(()=>{const r=[...cars].sort((a,b)=>Number(costPerKm(b)) - Number(costPerKm(a)))[0];return r?`${r.name||r.brand}: ${costPerKm(r)} ج/كم`:"—"})(),color:"#10b981"},
         ].map(s=><Panel key={s.label} style={{border:`1px solid ${s.color}25`}}><div style={{fontSize:26}}>{s.icon}</div><div style={{color:"white",fontSize:20,fontWeight:900,marginTop:8}}>{s.value}</div><div style={{color:"rgba(255,255,255,0.4)",fontSize:12,marginTop:4}}>{s.label}</div></Panel>)}
       </div>
       <Panel>
@@ -208,7 +228,7 @@ function Analytics({ cars }) {
           {monthlyFuel.map(([month,val])=>(
             <div key={month} style={{flex:1,display:"flex",flexDirection:"column",alignItems:"center",gap:6}}>
               <div style={{color:"rgba(255,255,255,0.5)",fontSize:10}}>{fmt(val)}</div>
-              <div style={{width:"100%",background:"linear-gradient(180deg,#10b981,#059669)",borderRadius:"6px 6px 0 0",height:`${(val/maxMV)*100}px`,minHeight:4,transition:"height 0.6s"}} />
+              <div style={{width:"100%",background:"linear-gradient(180deg,#10b981,#059669)",borderRadius:"6px 6px 0 0",height:`(Number(val) / Number(maxMV)) * 100}px`,minHeight:4,transition:"height 0.6s"}} />
               <div style={{color:"rgba(255,255,255,0.3)",fontSize:10}}>{month.slice(5)}</div>
             </div>
           ))}
@@ -216,10 +236,12 @@ function Analytics({ cars }) {
       </Panel>}
       <Panel>
         <SHead icon="📏" title="تكلفة الكيلومتر لكل سيارة" />
-        {[...cars].sort((a,b)=>costPerKm(b)-costPerKm(a)).map(c=>(
+        {[...cars].sort((a:any,b:any)=>Number(costPerKm(b)) - Number(costPerKm(a))).map((c:any)=>(
           <div key={c.id} style={{display:"flex",justifyContent:"space-between",alignItems:"center",padding:"10px 14px",borderRadius:12,background:"rgba(255,255,255,0.04)",marginBottom:6}}>
             <div><div style={{color:"rgba(255,255,255,0.7)",fontSize:13,fontWeight:700}}>{c.name||c.brand||"سيارة"}</div><div style={{color:"rgba(255,255,255,0.3)",fontSize:11}}>{fmt(c.currentKm)} كم · {avgFuel(c)?`${avgFuel(c)} ل/100كم`:"—"}</div></div>
-            <span style={{color:costPerKm(c)>2?"#f87171":costPerKm(c)>1?"#fbbf24":"#34d399",fontWeight:900,fontSize:15}}>{costPerKm(c)} جنيه/كم</span>
+            <span style={{color:Number(costPerKm(c))>2?"#f87171":Number(costPerKm(c))>1?"#fbbf24":"#34d399",fontWeight:900,fontSize:15}}>
+  {costPerKm(c)} جنيه/كم
+</span>
           </div>
         ))}
       </Panel>
@@ -230,7 +252,7 @@ function Analytics({ cars }) {
 // ── History ──
 function HistoryLog({ car, onUpdate }) {
   const [form, setForm] = useState({date:todayStr(),type:"صيانة",desc:"",cost:"",km:""});
-  const history = [...(car.history||[])].sort((a,b)=>new Date(b.date)-new Date(a.date));
+  const history = [...(car.history||[])].sort((a,b)=>new Date(b.date).getTime() - new Date(a.date).getTime());
   const typeIcon = t => t.includes("زيت")?"🛢️":t.includes("كاوتش")?"🔧":t.includes("وقود")?"⛽":t.includes("قطعة")?"🔩":"📝";
   return (
     <div>
@@ -496,7 +518,23 @@ function exportData(cars) {
 }
 function importData(setCars, showToast) {
   const input = document.createElement("input"); input.type="file"; input.accept=".json";
-  input.onchange=e=>{ const f=e.target.files[0]; if(!f)return; const r=new FileReader(); r.onload=ev=>{try{setCars(JSON.parse(ev.target.result));showToast("✅ تم الاستيراد");}catch{showToast("❌ ملف غير صحيح","#ef4444");}};r.readAsText(f); };
+  input.onchange = (e:any) => {
+  const f = e.target.files[0];
+  if (!f) return;
+
+  const r = new FileReader();
+
+  r.onload = (ev:any) => {
+    try {
+      setCars(JSON.parse(ev.target.result as string));
+      showToast("✅ تم الاستيراد");
+    } catch {
+      showToast("❌ ملف غير صحيح", "#ef4444");
+    }
+  };
+
+  r.readAsText(f);
+};
   input.click();
 }
 
@@ -504,9 +542,9 @@ function importData(setCars, showToast) {
 export default function App() {
   const [cars, setCars] = useState([]);
   const [page, setPage] = useState("dashboard");
-  const [selectedId, setSelectedId] = useState(null);
+  const [selectedId, setSelectedId] = useState<any>(null);
   const [search, setSearch] = useState("");
-  const [toast, setToast] = useState(null);
+  const [toast, setToast] = useState<any>(null);
 const [sideOpen, setSideOpen] = useState(true);
 
 useEffect(() => {
