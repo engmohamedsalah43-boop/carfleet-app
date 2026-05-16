@@ -537,7 +537,8 @@ function importData(setCars, showToast) {
 };
   input.click();
 }
-
+const APP_USER = "admin";
+const APP_PASS = "123456";
 // ── MAIN ──
 export default function App() {
   const [cars, setCars] = useState([]);
@@ -546,6 +547,16 @@ export default function App() {
   const [search, setSearch] = useState("");
   const [toast, setToast] = useState<any>(null);
 const [sideOpen, setSideOpen] = useState(true);
+const [loggedIn, setLoggedIn] = useState(false);
+const [username, setUsername] = useState("");
+const [password, setPassword] = useState("");
+const login = () => {
+  if (username === APP_USER && password === APP_PASS) {
+    setLoggedIn(true);
+  } else {
+    alert("بيانات الدخول غلط");
+  }
+};
 
 useEffect(() => {
   const loadCars = async () => {
@@ -619,7 +630,69 @@ await addDoc(collection(db, "cars"), car);
   const totalFleetCost = cars.reduce((s,c)=> s+(c.parts||[]).reduce((a,p)=>a+ +(p.cost||0),0)+ +(c.oil.cost||0)+ +(c.tires.cost||0)+c.maintenances.reduce((a,m)=>a+ +(m.cost||0),0)+(c.fuelLogs||[]).reduce((a,l)=>a+ +(l.cost||0),0)+ +(c.insurance.cost||0)+ +(c.license.cost||0) ,0);
 
   const NAV = [{id:"dashboard",icon:"🏠",label:"لوحة التحكم"},{id:"alerts",icon:"🔔",label:"التنبيهات",badge:dangerN+warnN},{id:"analytics",icon:"📊",label:"التحليلات"}];
+if (!loggedIn) {
+  return (
+    <div style={{
+      minHeight:"100vh",
+      display:"flex",
+      justifyContent:"center",
+      alignItems:"center",
+      background:"#020817"
+    }}>
+      <div style={{
+        width:320,
+        background:"#0f172a",
+        padding:30,
+        borderRadius:20,
+        display:"flex",
+        flexDirection:"column",
+        gap:15
+      }}>
+        <h2 style={{color:"white",textAlign:"center"}}>
+          تسجيل الدخول
+        </h2>
 
+        <input
+          placeholder="Username"
+          value={username}
+          onChange={(e)=>setUsername(e.target.value)}
+          style={{
+            padding:12,
+            borderRadius:10,
+            border:"none"
+          }}
+        />
+
+        <input
+          type="password"
+          placeholder="Password"
+          value={password}
+          onChange={(e)=>setPassword(e.target.value)}
+          style={{
+            padding:12,
+            borderRadius:10,
+            border:"none"
+          }}
+        />
+
+        <button
+          onClick={login}
+          style={{
+            padding:12,
+            border:"none",
+            borderRadius:10,
+            background:"#10b981",
+            color:"white",
+            fontWeight:"bold",
+            cursor:"pointer"
+          }}
+        >
+          دخول
+        </button>
+      </div>
+    </div>
+  );
+}
   return (
     <div dir="rtl" style={{minHeight:"100vh",background:"#0d1117",fontFamily:"'Cairo','Tajawal',sans-serif",display:"flex"}}>
       
