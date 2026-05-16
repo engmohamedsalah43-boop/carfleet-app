@@ -622,45 +622,8 @@ await addDoc(collection(db, "cars"), car);
 
   return (
     <div dir="rtl" style={{minHeight:"100vh",background:"#0d1117",fontFamily:"'Cairo','Tajawal',sans-serif",display:"flex"}}>
-      <button
-  onClick={async () => {
-    await addDoc(collection(db, "cars"), {
-      name: "سيارة تجريبية",
-      model: "Toyota",
-      createdAt: new Date(),
-    });
-
-    alert("Saved To Firebase");
-  }}
-  style={{
-    position: "fixed",
-    top: 20,
-    left: 20,
-    zIndex: 9999,
-    padding: "10px 20px",
-    borderRadius: "10px",
-    border: "none",
-    background: "#10b981",
-    color: "white",
-    cursor: "pointer",
-    fontWeight: "bold",
-  }}
->
-  Save Firebase
-</button>
-      <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&display=swap');
-        *{box-sizing:border-box;margin:0;padding:0;}
-        ::-webkit-scrollbar{width:4px;height:4px;}
-        ::-webkit-scrollbar-track{background:transparent;}
-        ::-webkit-scrollbar-thumb{background:rgba(255,255,255,0.15);border-radius:4px;}
-        input[type=number]::-webkit-inner-spin-button{-webkit-appearance:none;}
-        @keyframes bounce{0%,100%{transform:translateY(0)}50%{transform:translateY(-5px)}}
-        @keyframes fadeIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
-        .ccard:hover{transform:translateY(-3px);box-shadow:0 12px 40px rgba(0,0,0,0.4);}
-        .ccard{transition:transform 0.18s,box-shadow 0.18s;}
-      `}</style>
-
+      
+  
       {/* SIDEBAR */}
       <div style={{width:sideOpen?230:58,minHeight:"100vh",background:"#111827",borderLeft:"1px solid rgba(255,255,255,0.06)",display:"flex",flexDirection:"column",flexShrink:0,transition:"width 0.22s",overflow:"hidden",position:"sticky",top:0,height:"100vh"}}>
         <div style={{padding:"18px 14px 12px",borderBottom:"1px solid rgba(255,255,255,0.06)",display:"flex",alignItems:"center",gap:10,minHeight:64}}>
