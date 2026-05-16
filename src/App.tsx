@@ -9,20 +9,32 @@ import { db } from "./firebase";
 import { useState, useEffect, useCallback, useRef, useMemo } from "react";
 
 const LS = {
-  get: (k, d) => { try { const v = localStorage.getItem(k); return v ? JSON.parse(v) : d; } catch { return d; } },
-  set: (k, v) => { try { localStorage.setItem(k, JSON.stringify(v)); } catch {} },
+  get: (k: string, d: any) => {
+    try {
+      const v = localStorage.getItem(k);
+      return v ? JSON.parse(v) : d;
+    } catch {
+      return d;
+    }
+  },
+
+  set: (k: string, v: any) => {
+    try {
+      localStorage.setItem(k, JSON.stringify(v));
+    } catch {}
+  },
 };
 
-const fmt = n => Number(n || 0).toLocaleString("ar-EG");
-const daysBetween = d => { if (!d) return null; return Math.ceil((new Date(d) - new Date()) / 86400000); };
+const fmt = (n: any) => Number(n || 0).toLocaleString("ar-EG");
+const daysBetween = (d: any) => { if (!d) return null; return Math.ceil((new Date(d) - new Date()) / 86400000); };
 const todayStr = () => new Date().toISOString().split("T")[0];
 
-function kmStatus(lastKm, interval, cur) {
+function kmStatus(lastKm: any, interval: any, cur: any) {
   if (!lastKm || !cur) return "ok";
   const r = +lastKm + +interval - +cur;
   return r < 0 ? "danger" : r < 500 ? "warning" : "ok";
 }
-function dateStatus(exp, warn = 30) {
+function dateStatus(exp: any, warn = 30) {
   const d = daysBetween(exp);
   if (d === null) return "ok";
   return d < 0 ? "danger" : d <= warn ? "warning" : "ok";
